@@ -44,44 +44,32 @@ public class DeleteActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String dname = name.getText().toString().trim();
+                name.setText("");
 
 // Remove the 'capital' field from the document
-                Map<String, Object> delete = new HashMap<>();
-                delete.put("Name", FieldValue.delete());
 
-                fstore.collection("Students").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                fstore.collection("Students").whereEqualTo("Name", dname).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()&&!task.getResult().isEmpty()){
+                        if (task.isSuccessful()&&!task.getResult().isEmpty()) {
                             DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
                             String documentId = documentSnapshot.getId();
-
-                            fstore.collection("Students").document(documentId).update(delete).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            fstore.collection("Students").document(documentId).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void unused) {
-                                    DocumentReference docRef = fstore.collection("Name").document(dname);
-                                    docRef.update(delete).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            Toast.makeText(DeleteActivity.this, "Deleted", Toast.LENGTH_SHORT).show();
-                                            startActivity(new Intent(DeleteActivity.this,Home_Activity.class));
-                                        }
-
-                                    });
-
+                                    Toast.makeText(DeleteActivity.this, "Data Deleted", Toast.LENGTH_SHORT).show();
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(DeleteActivity.this, "Failed", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(DeleteActivity.this, "Deletion Failed", Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }else {
                             Toast.makeText(DeleteActivity.this, "Failed to Delete", Toast.LENGTH_SHORT).show();
                         }
-                        startActivity(new Intent(getApplicationContext(),Home_Activity.class));
+                        startActivity(new Intent(DeleteActivity.this,ReadData.class));
                     }
-
                 });
 
 
